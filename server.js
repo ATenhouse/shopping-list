@@ -19,7 +19,7 @@ app.post('/items', jsonParser, function(req, res) {
     if (!req.body) {
         return res.sendStatus(400)
     }
-    var item = storage.add(req.body.id)
+    var item = storage.add(req.body.name)
     res.status(201).json(item)
 })
 
@@ -71,6 +71,6 @@ app.put('/items/:id', jsonParser, function(req, res) {
 app.listen(process.env.PORT || 3000)
 
 module.exports = {
-    app: app,
-    storage: storage
+    storage: storage,
+    app: app
 }

@@ -60,13 +60,13 @@ describe('Shopping List', function() {
             .delete('/items/1')
             .end(function(err, res) {
                 should.equal(err, null)
+                console.log(res.body)
                 res.should.be.json
                 res.should.have.status(200)
-                res.body.should.have.length(1)
-                res.body.should.be.a('array')
-                res.body[0].should.be.a('object')
-                res.body[0].should.have.property('status')
-                res.body[0].status.should.equal("No items were deleted from the shopping list. Chances are this ID has already been deleted.")
+                res.body.items.should.have.length(1)
+                res.body.items.should.be.a('array')
+                res.body.should.have.property('status')
+                res.body.status.should.equal("Successfully deleted some items.")
                 done()
             })
     })

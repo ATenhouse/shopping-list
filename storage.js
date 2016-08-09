@@ -3,9 +3,10 @@ var Storage = function() {
     this.id = 0
 }
 
-Storage.prototype.add = function(name) {
+Storage.prototype.add = function(input_name) {
+    var inner_name = input_name || null
     var item = {
-        name: name,
+        name: inner_name,
         id: this.id
     }
     this.items.push(item)

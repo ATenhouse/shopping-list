@@ -7,7 +7,6 @@ var storage = new Storage()
 storage.add('Broad beans')
 storage.add('Tomatoes')
 storage.add('Peppers')
-storage.add('Beef jerky')
 
 var app = express()
 app.use(express.static('public'))
@@ -69,4 +68,4 @@ app.put('/items/:id', jsonParser, function(req, res) {
     }
 })
 
-app.listen(process.env.PORT || 8080)
+app.listen(process.env.PORT || 3000)

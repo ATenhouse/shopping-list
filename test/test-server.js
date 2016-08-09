@@ -60,7 +60,6 @@ describe('Shopping List', function() {
             .delete('/items/1')
             .end(function(err, res) {
                 should.equal(err, null)
-                console.log(res.body)
                 res.should.be.json
                 res.should.have.status(200)
                 res.body.items.should.have.length(1)

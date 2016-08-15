@@ -32,7 +32,9 @@ describe('Shopping List', function() {
     it('should add an item on POST', function(done) {
         chai.request(app)
             .post('/items')
-            .send({'name': 'Kale'})
+            .send({
+                'name': 'Kale'
+            })
             .end(function(err, res) {
                 should.equal(err, null)
                 res.should.have.status(201)
@@ -69,8 +71,26 @@ describe('Shopping List', function() {
                 done()
             })
     })
-    it("should throw an error on POST to an ID that exists")
-    it("should throw an error on a POST without body data")
+    it("should throw an error on POST to an ID that exists", function(done) {
+        chai.request(app)
+            .post('/items')
+            .send({
+                'id': 1,
+                'name': 'Kale'
+            })
+            .end(function(err, res) {
+                // should.equal(err, null)
+                res.should.have.status(400)
+                res.body.should.be.a('object')
+                res.should.be.json
+                res.body.should.have.property('error')
+                res.body.error.should.equal("The ID you've specified already exists. POSTing is intended for new entries, not replacing one. Please try REPLACE instead.")
+                done()
+            })
+    })
+    it("should throw an error on a POST without body data"), function(done) {
+        should.not.equal(err, null)
+    }
     it("should throw an error on POST with something other than valid JSON")
     it("should automatically handle a PUT without an ID in the endpoint")
     it("should handle a PUT with different ID in the endpoint than the body")

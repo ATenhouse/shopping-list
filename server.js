@@ -17,10 +17,24 @@ app.get('/items', function(req, res) {
 
 app.post('/items', jsonParser, function(req, res) {
     if (!req.body) {
-        return res.sendStatus(400)
+        res.sendStatus(400).json({
+            "error": "Nothing was specified to add to the shopping list. Please pass something in the form of {name: item}."
+        })
     }
-    var item = storage.add(req.body.name)
-    res.status(201).json(item)
+    if (req.body.id) {
+        if (storage.id > req.body.id){
+            res.status(400).json({
+                "error": "The ID you've specified already exists. POSTing is intended for new entries, not replacing one. Please try REPLACE instead."
+            })
+        }
+        else {
+            var item = storage.add(req.body.name)
+            res.status(201).json(item)
+        }
+    } else {
+        var item = storage.add(req.body.name)
+        res.status(201).json(item)
+    }
 })
 
 app.delete('/items/:id', jsonParser, function(req, res) {
@@ -28,7 +42,7 @@ app.delete('/items/:id', jsonParser, function(req, res) {
     var inner_id = Number(req.params.id)
     if (isNaN(inner_id)) {
         return res.status(400).json({
-            "error": "Requested ID '"+req.params.id+"' is not a number."
+            "error": "Requested ID '" + req.params.id + "' is not a number."
         })
     }
     var deleted_items = storage.delete(inner_id)
@@ -50,19 +64,19 @@ app.put('/items/:id', jsonParser, function(req, res) {
     var inner_id = Number(req.params.id)
     if (isNaN(inner_id)) {
         return res.status(400).json({
-            "error": "Requested ID '"+req.params.id+"' is not a number."
+            "error": "Requested ID '" + req.params.id + "' is not a number."
         })
     }
     var replaced = storage.replace(inner_id, passed_obj)
     if (replaced.length > 0) {
         res.status(200).json({
-            status: "Successfully replaced "+replaced.length+" item(s).",
+            status: "Successfully replaced " + replaced.length + " item(s).",
             replaced: replaced
         })
     } else {
-    	storage.add(passed_obj)
+        storage.add(passed_obj)
         res.status(200).json({
-            status: inner_id+" did not appear as a valid ID in original list appended to the shopping list.",
+            status: inner_id + " did not appear as a valid ID in original list appended to the shopping list.",
             added: passed_obj
         })
     }

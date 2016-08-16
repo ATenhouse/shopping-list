@@ -56,7 +56,41 @@ describe('Shopping List', function() {
                 done()
             })
     })
-    it('should edit an item on put')
+    it('should edit an item on put', function(done) {
+        chai.request(app)
+            .put('/items/3')
+            .send({
+                'name': 'New 3 Kale'
+            })
+            .end(function(err, res) {
+                should.equal(err, null)
+                res.should.be.json
+                res.should.have.status(200)
+                res.body.should.have.property('replaced')
+                res.body.replaced.should.be.a('array')
+                res.body.should.have.property('status')
+                res.body.status.should.contain("Successfully replaced")
+                done()
+            })
+    })
+    it('should THEN reflect the newly-altered item', function(done) {
+        chai.request(app)
+            .get('/items')
+            .end(function(err, res) {
+                should.equal(err, null)
+                res.should.have.status(200)
+                res.should.be.json
+                res.body.should.be.a('array')
+                res.body.should.have.length(4)
+                res.body[3].should.be.a('object')
+                res.body[3].should.have.property('id')
+                res.body[3].should.have.property('name')
+                res.body[3].id.should.be.a('number')
+                res.body[3].name.should.be.a('string')
+                res.body[3].name.should.equal('New 3 Kale')
+                done()
+            })
+    })
     it('should delete an item on delete', function(done) {
         chai.request(app)
             .delete('/items/1')
@@ -88,9 +122,19 @@ describe('Shopping List', function() {
                 done()
             })
     })
-    it("should throw an error on a POST without body data"), function(done) {
-        should.not.equal(err, null)
-    }
+    it("should throw an error on a POST without body data", function(done) {
+        chai.request(app)
+            .post('/items')
+            .send({})
+            .end(function(err, res) {
+                res.should.have.status(400)
+                res.body.should.be.a('object')
+                res.should.be.json
+                res.body.should.have.property('error')
+                res.body.error.should.equal("Nothing was specified to add to the shopping list. Please pass something in the form of {name: item}.")
+                done()
+            })
+    })
     it("should throw an error on POST with something other than valid JSON")
     it("should automatically handle a PUT without an ID in the endpoint")
     it("should handle a PUT with different ID in the endpoint than the body")

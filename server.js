@@ -15,13 +15,17 @@ app.get('/items', function(req, res) {
     res.json(storage.items)
 })
 
+function isEmpty(obj){
+    return (Object.getOwnPropertyNames(obj).length === 0);
+}
+
 app.post('/items', jsonParser, function(req, res) {
-    if (!req.body) {
-        res.sendStatus(400).json({
+    if (!req.body || (isEmpty(req.body))) {
+        res.status(400).json({
             "error": "Nothing was specified to add to the shopping list. Please pass something in the form of {name: item}."
         })
     }
-    if (req.body.id) {
+    else if (req.body.id) {
         if (storage.id > req.body.id){
             res.status(400).json({
                 "error": "The ID you've specified already exists. POSTing is intended for new entries, not replacing one. Please try REPLACE instead."

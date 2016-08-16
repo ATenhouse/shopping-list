@@ -29,11 +29,13 @@ Storage.prototype.delete = function(target_id) {
 
 Storage.prototype.replace = function(target_id, replacement_obj) {
     var replaced = []
-    this.items = this.items.map(function(obj) {
-        if (obj.id === target_id) {
-        	replaced.push(obj)
-            obj === replacement_obj
+    this.items = this.items.map(function(x) {
+        if (x.id === target_id) {
+        	var y = { 'id': target_id, 'name': replacement_obj.name}
+            replaced.push(y)
+            return y
         }
+        return x
     })
     return replaced
 }

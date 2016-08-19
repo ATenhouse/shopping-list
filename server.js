@@ -19,10 +19,21 @@ function isEmpty(obj){
     return (Object.getOwnPropertyNames(obj).length === 0);
 }
 
+// straight-up yanked from:
+// http://stackoverflow.com/a/3710226
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 app.post('/items', jsonParser, function(req, res) {
     if (!req.body || (isEmpty(req.body))) {
         res.status(400).json({
-            "error": "Nothing was specified to add to the shopping list. Please pass something in the form of {name: item}."
+            "error": "Your request appears invalid. Please pass valid JSON in the form of {name: item}."
         })
     }
     else if (req.body.id) {
@@ -62,13 +73,24 @@ app.delete('/items/:id', jsonParser, function(req, res) {
     }
 })
 
-app.put('/items/:id', jsonParser, function(req, res) {
+app.put('/items/:id?', jsonParser, function(req, res) {
     // Need to force the string 'id' to a Number for proper use in an Array reference
     var passed_obj = req.body
-    var inner_id = Number(req.params.id)
+    var passed_id = req.params.id || storage.id
+    var inner_id = Number(passed_id)
     if (isNaN(inner_id)) {
         return res.status(400).json({
             "error": "Requested ID '" + req.params.id + "' is not a number."
+        })
+    }
+    if (req.params.id && req.body.id && (req.params.id !== req.body.id)) {
+        return res.status(400).json({
+            "error": "Requested endpoint id "+req.params.id+" does not match the ID defined in the object: "+req.body.id
+        })
+    }
+    if(isEmpty(passed_obj)){
+        return res.status(400).json({
+            "error": "Request refused. To replace a valid item, we need body data. Please attempt again in the form of {name: STRING, id: NUMBER}"
         })
     }
     var replaced = storage.replace(inner_id, passed_obj)
@@ -78,13 +100,15 @@ app.put('/items/:id', jsonParser, function(req, res) {
             replaced: replaced
         })
     } else {
-        storage.add(passed_obj)
+        storage.add(passed_obj.name)
         res.status(200).json({
-            status: inner_id + " did not appear as a valid ID in original list appended to the shopping list.",
+            status: inner_id + " did not appear as a valid ID in original list; appended to the shopping list.",
             added: passed_obj
         })
     }
 })
+
+
 
 app.listen(process.env.PORT || 3000)
 

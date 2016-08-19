@@ -19,16 +19,18 @@ function isEmpty(obj){
     return (Object.getOwnPropertyNames(obj).length === 0);
 }
 
-// straight-up yanked from:
-// http://stackoverflow.com/a/3710226
-function IsJsonString(str) {
+// Straight-up yanked from http://stackoverflow.com/a/20392392
+function tryParseJSON(jsonString){
     try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
+        var o = JSON.parse(jsonString);
+        if (o && typeof o === "object") {
+            return true;
+        }
     }
-    return true;
-}
+    catch (e) { }
+
+    return false;
+};
 
 app.post('/items', jsonParser, function(req, res) {
     if (!req.body || (isEmpty(req.body))) {
@@ -55,20 +57,25 @@ app.post('/items', jsonParser, function(req, res) {
 app.delete('/items/:id', jsonParser, function(req, res) {
     // Need to force the string 'id' to a Number for proper use in an Array reference
     var inner_id = Number(req.params.id)
+    if(req.params.id === undefined){
+        return res.status(400).json({
+            "error": "DELETE endpoint requires an ID, i.e. /items/ID."
+        })
+    }
     if (isNaN(inner_id)) {
         return res.status(400).json({
             "error": "Requested ID '" + req.params.id + "' is not a number."
         })
     }
     var deleted_items = storage.delete(inner_id)
-    if (deleted_items !== null) {
+    if (deleted_items.length > 0) {
         res.status(200).json({
             status: "Successfully deleted some items.",
             items: deleted_items
         })
     } else {
-        res.status(200).json({
-            status: "No items were deleted from the shopping list. Chances are this ID has already been deleted."
+        res.status(400).json({
+            "error": "The ID you requested to delete ("+inner_id+") did not exist in the list."
         })
     }
 })
@@ -88,7 +95,7 @@ app.put('/items/:id?', jsonParser, function(req, res) {
             "error": "Requested endpoint id "+req.params.id+" does not match the ID defined in the object: "+req.body.id
         })
     }
-    if(isEmpty(passed_obj)){
+    if(isEmpty(passed_obj) || tryParseJSON(passed_obj)){
         return res.status(400).json({
             "error": "Request refused. To replace a valid item, we need body data. Please attempt again in the form of {name: STRING, id: NUMBER}"
         })

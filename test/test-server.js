@@ -217,8 +217,6 @@ describe('Shopping List', function() {
             .put('/items/4')
             .send(null)
             .end(function(err, res) {
-                // shouldn't trigger an error provided the other information
-                // is in good order ...
                 should.not.equal(err, null)
                 res.should.be.json
                 res.should.have.status(400)
@@ -228,7 +226,47 @@ describe('Shopping List', function() {
                 done()
             })
     })
-    it("throw an error for a PUT with something other than valid JSON")
-    it("throw an error for a DELETE an ID that doesn't exist")
-    it("handle a DELETE without an ID in the endpoint")
+    it("throw an error for a PUT with something other than valid JSON", function(done){
+        chai.request(app)
+            .put('/items/4')
+            .send("{bauble;id:5, slam: true}")
+            .end(function(err, res){
+                should.not.equal(err, null)
+                res.should.be.json
+                res.should.have.status(400)
+                res.body.should.have.property('error')
+                res.body.error.should.be.a('string')
+                res.body.error.should.contain("Request refused. To replace a valid item, we need body data.")
+                done()
+            })
+    })
+    it("throw an error for a DELETE an ID that doesn't exist", function(done){
+        chai.request(app)
+            .delete('/items/10')
+            .end(function(err, res){
+                should.not.equal(err, null)
+                res.should.be.json
+                res.should.have.status(400)
+                res.body.should.have.property('error')
+                res.body.error.should.be.a('string')
+                res.body.error.should.equal("The ID you requested to delete (10) did not exist in the list.")
+                done()
+            })
+    })
+    // Curiously enough, no amount of parameter-handling in Express routes seems to
+    // avoid this error. How can this be addressed? In any case, an error IS thrown ...
+    it("throw an error for a DELETE without an ID in the endpoint", function(done){
+        chai.request(app)
+            .delete("/items/")
+            .end(function(err, res){
+                // console.log(res)
+                should.not.equal(err, null)
+                res.should.be.html
+                res.should.have.status(404)
+                res.should.have.property('error')
+                should.equal(typeof res.error, 'object')
+                should.equal(res.error.toString(), "Error: cannot DELETE /items/ (404)")
+                done()
+            })
+    })
 })

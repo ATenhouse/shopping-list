@@ -261,11 +261,11 @@ describe('Shopping List', function() {
             .end(function(err, res){
                 // console.log(res)
                 should.not.equal(err, null)
-                res.should.be.html
-                res.should.have.status(404)
+                res.should.be.json
+                res.should.have.status(400)
                 res.should.have.property('error')
                 should.equal(typeof res.error, 'object')
-                should.equal(res.error.toString(), "Error: cannot DELETE /items/ (404)")
+                should.equal(res.error.toString(), "Error: cannot DELETE /items/ (400)")
                 done()
             })
     })

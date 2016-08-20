@@ -54,7 +54,7 @@ app.post('/items', jsonParser, function(req, res) {
     }
 })
 
-app.delete('/items/:id', jsonParser, function(req, res) {
+app.delete('/items/:id?', jsonParser, function(req, res) {
     // Need to force the string 'id' to a Number for proper use in an Array reference
     var inner_id = Number(req.params.id)
     if(req.params.id === undefined){
